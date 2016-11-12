@@ -1,0 +1,311 @@
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+
+require 'rubygems'
+require 'bundler/setup'
+require 'gli'
+require 'biblio'
+
+###################################
+
+include GLI::App
+include IPM::Arguments
+include Biblio::Exceptions
+
+###################################
+# Programme
+###################################
+
+program_desc 'Programme pour la gestion de prets de livres'
+
+# Use argument validation
+arguments :strict
+
+version Biblio::VERSION
+
+###################################
+# Option globale
+###################################
+
+DEPOT_DEFAUT = './.biblio.txt'
+
+desc 'Fichier contenant le depot'
+arg_name "depot"
+default_value DEPOT_DEFAUT
+flag [:depot]
+
+
+########################################################
+# :section: Configuration generale de l'application
+########################################################
+Biblio::ServicesExternes.courriel =
+  ServiceCourrielGmail
+
+Biblio::ServicesExternes.emprunts = {
+  ".txt" => Biblio::EmpruntsTxt,
+  ".yaml" => Biblio::EmpruntsYAML }
+
+########################################################
+# :section: Procedures auxiliaires utilisees par toutes les commandes.
+########################################################
+
+def verifier_erreurs #:nodoc:
+  begin
+    yield
+  rescue ErreurAucuneAdresseCourriel => e
+    exit_now!( "Aucune adresse de courriel n'est specifiee: #{e.message}.", 1 )
+  rescue ErreurDepotExisteDeja => e
+    exit_now!( "Le fichier '#{e.message}' existe. Si vous voulez le detruire, utilisez 'init --detruire'.", 1 )
+  rescue ErreurDepotInexistant => e
+    exit_now!( "Le fichier '#{e.message}' n'existe pas.", 1 )
+  rescue ErreurDejaEmprunte => e
+    exit_now!( "Un livre avec le meme titre est deja emprunte par '#{e.message}'.", 1 )
+  rescue ErreurFormatNonTraite => e
+    exit_now!( "Format de fichier non traite '#{e.message}'.", 1 )
+  rescue ErreurPasEmprunte => e
+    exit_now!( "Aucun livre emprunte avec le titre '#{e.message}'.", 1 )
+  rescue Exception => e
+    exit_now!( "#{e.inspect}: #{e.message}", 1 )
+  end
+end
+
+def avec_biblio( fich_depot = DEPOT_DEFAUT ) # :nodoc:
+  verifier_erreurs do
+    yield Biblio::Biblio.ouvrir( fich_depot )
+  end
+end
+
+def verifier_nb_args( args, n ) # :nodoc:
+  unless args.size == n
+    help_now!( "Nombre incorrect d'arguments --  |#{args.join(" ")}| != #{n}" )
+  end
+end
+
+private :verifier_erreurs, :avec_biblio, :verifier_nb_args
+
+
+########################################################
+# Les differentes commandes
+########################################################
+
+desc "Cree une nouvelle base de donnees pour gerer des livres empruntes (dans '#{DEPOT_DEFAUT}' si --depot n'est pas specifie)"
+command :init do |c|
+  c.desc "detruit le depot s'il existe deja, sinon noop"
+  c.switch :detruire
+
+  c.action do |global_options,options,args|
+    verifier_nb_args args, 0
+
+    depot = global_options[:depot] || DEPOT_DEFAUT
+    verifier_erreurs do
+      Biblio::Biblio.ouvrir( depot, {:creer => true, :detruire_si_existe => options[:detruire]} )
+    end
+  end
+end
+
+desc "Indique l'emprunt d'un livre (ou de plusieurs via stdin)"
+arg_name "nom courriel titre auteurs"
+command :emprunter do |c|
+  c.action do |global_options,options,args|
+    verifier_nb_args args, 4 if args.size > 0
+
+    avec_biblio( global_options[:depot] ) do |bib|
+      if args.size > 0
+        # Les arguments pour l'emprunt sont sur la ligne de commande.
+        exit_now!( "Adresse de courriel incorrecte:  '#{args[1]}'.", 1 ) unless args[1] =~ UN_COURRIEL
+        bib.emprunter( *args )
+      else
+        # Les arguments pour (possiblement) plusieurs emprunts sont obtenus via STDIN.
+        traiter_emprunts_stdin( bib )
+      end
+    end
+  end
+end
+
+desc "Retourne les livres empruntes par quelqu'un"
+arg_name 'nom'
+command :emprunts do |c|
+  c.action do |global_options,options,args|
+    verifier_nb_args args, 1
+    nom = args[0]
+
+    avec_biblio( global_options[:depot] ) do |bib|
+      STDOUT.puts bib.emprunts_de(nom).join("\n")
+    end
+  end
+end
+
+desc "Indique le retour d'un livre"
+arg_name 'titre'
+command :rapporter do |c|
+  c.action do |global_options,options,args|
+    verifier_nb_args args, 1
+    titre = args[0]
+
+    avec_biblio( global_options[:depot] ) do |bib|
+      bib.rapporter( titre )
+    end
+  end
+end
+
+desc "Determine l'emprunteur d'un livre"
+arg_name 'titre'
+command :emprunteur do |c|
+  c.action do |global_options,options,args|
+    verifier_nb_args args, 1
+    titre = args[0]
+
+    avec_biblio( global_options[:depot] ) do |bib|
+      qui = bib.emprunteur( titre )
+      if qui
+        STDOUT.puts qui
+      else
+        fail ErreurPasEmprunte, titre
+      end
+    end
+  end
+end
+
+desc "Retourne le titre complet d'un livre (ou tous les titres qui contiennent la chaine)"
+arg_name 'extrait_titre'
+command :trouver do |c|
+  c.action do |global_options,options,args|
+    verifier_nb_args args, 1
+    extrait_titre = args[0]
+
+    avec_biblio( global_options[:depot] ) do |bib|
+      STDOUT.puts bib.trouver( extrait_titre )
+    end
+  end
+end
+
+desc "Transmet un courriel a l'emprunteur d'un livre pour lui demander de le rapporter"
+arg_name 'titre'
+command :rappeler_livre do |c|
+  c.action do |global_options,options,args|
+    verifier_nb_args args, 1
+    titre = args[0]
+
+    avec_biblio( global_options[:depot] ) do |bib|
+      emp = bib.rappeler_livre( titre )
+      STDOUT.puts "Un courriel a ete transmis a #{emp.courriel}."
+    end
+  end
+end
+
+desc "Transmet des courriels a tous les emprunteurs pour leur demander de les rapporter"
+command :rappeler_tous_les_livres do |c|
+  c.action do |global_options,options,args|
+    verifier_nb_args args, 0
+
+    avec_biblio( global_options[:depot] ) do |bib|
+      transmis, errones = bib.rappeler_tous_les_livres
+      transmis.each do |emp|
+        STDOUT.puts "Courriel transmis a #{emp.nom} (#{emp.courriel}) pour '#{emp.titre}'."
+      end
+      errones.each do |emp, exception|
+        STDOUT.puts "Pas de courriel transmis a #{emp.nom} (#{emp.courriel}) pour '#{emp.titre}' : #{exception.inspect}."
+      end
+    end
+  end
+end
+
+desc "Liste l'ensemble des livres empruntes"
+command :lister do |c|
+  c.flag :format
+  c.switch :inclure_perdus
+
+  c.action do |global_options,options,args|
+    verifier_nb_args args, 0
+
+    le_format = options[:format] || '%-.20N :: [ %-10A ] "%-.20T"'
+    inclure_perdus = options[:inclure_perdus]
+
+    avec_biblio( global_options[:depot] ) do |bib|
+      bib.emprunts( :inclure_perdus => inclure_perdus ).each do |emp|
+        perdu = inclure_perdus && emp.perdu? ? " <<PERDU>> " : ""
+        STDOUT.puts( emp.to_s(le_format) << perdu )
+      end
+    end
+  end
+end
+
+desc "Indiquer la perte d'un livre"
+command :indiquer_perte do |c|
+  c.action do |global_options,options,args|
+    verifier_nb_args args, 1
+    titre = args[0]
+
+    avec_biblio( global_options[:depot] ) do |bib|
+      bib.indiquer_perte( titre )
+    end
+  end
+end
+
+
+########################################################
+# :section: Autre procedure auxiliaire (unique a emprunter).
+########################################################
+
+def traiter_emprunts_stdin( bib ) # :nodoc:
+  bib.avec_transaction do
+    STDIN.readlines.each do |ligne|
+      ligne.chomp!
+      l = ligne.strip
+
+      next if l == ""  # Ligne vide: on l'ignore (pas d'erreur!)
+
+      args = [UN_OU_DES_MOTS, UN_COURRIEL, UN_OU_DES_MOTS, UN_OU_DES_MOTS].map do |patron|
+        arg, l = IPM::Arguments.prochain(l, patron)
+        exit_now!( "Format de donnees incorrect: '#{l} =~ #{patron.inspect}'.", 1 ) unless arg
+        arg
+      end
+
+      help_now!( "Nombre incorrect d'arguments --  |#{ligne}| != 4" ) unless l == ""
+
+      bib.emprunter( *args )
+    end
+  end
+end
+
+private :traiter_emprunts_stdin
+
+
+########################################################
+# Autres procedures auxiliaires --- associees a GLI
+########################################################
+
+pre do |global,command,options,args|
+  # Pre logic here
+  # Return true to proceed; false to abort and not call the
+  # chosen command
+  # Use skips_pre before a command to skip this block
+  # on that command only
+  true
+end
+
+post do |global,command,options,args|
+  # Post logic here
+  # Use skips_post before a command to skip this
+  # block on that command only
+end
+
+on_error do |exception|
+  # Error logic here
+  # return false to skip default error handling
+  if ENV['DEBUG']
+    puts "#{exception.class}( #{exception.message} )"
+    puts exception.backtrace
+    false
+  else
+    true
+  end
+end
+
+
+########################################################
+# Execution du programme
+########################################################
+
+exit run(ARGV)
+
