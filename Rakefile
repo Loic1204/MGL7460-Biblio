@@ -10,6 +10,7 @@ require 'cucumber'
 require 'cucumber/rake/task'
 require 'biblio'
 
+BIBLIO = 'bundle exec bin/biblio'
 
 ##################################################
 # default
@@ -17,6 +18,11 @@ require 'biblio'
 
 task :default => [:spec]
 
+##################################################
+
+task :test_emprunter do
+     sh "rake test TEST=test/emprunter_test.rb"     
+end
 
 ##################################################
 # Cucumber
