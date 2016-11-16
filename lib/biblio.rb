@@ -3,7 +3,7 @@ require 'dbc.rb'
 
 require 'ipm/arguments.rb'
 
-require 'services/service-courriel-gmail.rb'
+#require 'services/service-courriel-gmail.rb'
 
 require 'biblio/version.rb'
 require 'biblio/exceptions.rb'

@@ -24,9 +24,24 @@ task :test_emprunter do
      sh "rake test TEST=test/emprunter_test.rb"     
 end
 
+task :test_rapporter do
+     sh "rake test TEST=test/rapporter_test.rb"     
+end
+
 ##################################################
 # Cucumber
 ##################################################
+Rake::RDocTask.new do |rd|
+  rd.main = "README.rdoc"
+  rd.rdoc_files.include("README.rdoc","lib/**/*.rb","bin/**/*")
+  rd.title = 'Your application title'
+end
+
+spec = eval(File.read('biblio.gemspec'))
+
+Gem::PackageTask.new(spec) do |pkg|
+end
+
 CUKE_RESULTS = 'results.html'
 CLEAN << CUKE_RESULTS
 
@@ -50,6 +65,12 @@ task :cucumber => :features
 task 'cucumber:wip' => 'features:wip'
 task :wip => 'features:wip'
 
+require 'rake/testtask'
+
+Rake::TestTask.new do |t|
+  t.libs << "test"
+  t.test_files = FileList['test/*_test.rb']
+end
 
 
 ##################################################
