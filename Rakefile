@@ -28,6 +28,15 @@ task :test_rapporter do
      sh "rake test TEST=test/rapporter_test.rb"     
 end
 
+task :biblio_features do
+  sh "cucumber features/biblio-emprunteur.feature"
+  sh "cucumber features/biblio-indiquer_perte.feature"
+  sh "cucumber features/biblio-init.feature"
+  sh "cucumber features/biblio-lister.feature"
+  sh "cucumber features/biblio-rapporter.feature"
+  sh "cucumber features/biblio-trouver.feature"
+end
+
 ##################################################
 # Cucumber
 ##################################################
