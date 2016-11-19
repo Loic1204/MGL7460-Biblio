@@ -12,6 +12,8 @@ gem 'minitest', '=5.4.3'
 require 'minitest/autorun'
 require 'minitest/spec'
 require 'minitest/mock'
+require 'simplecov'
+SimpleCov.start
 
 ## tiré de test_helper.rb du programme mini-sed
 
