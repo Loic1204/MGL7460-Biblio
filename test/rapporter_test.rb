@@ -3,19 +3,21 @@ require 'biblio'
 
 describe Biblio do
   describe "Biblio.rapporter" do
-    let(:a) { Biblio::Emprunt.new("toto", "toto@blob.com", "Harry Potter", ["JK Rowling"]) }
-    let(:b) { Biblio::Emprunt.new("bob", "bob@gmail.com", "The Martian", ["Andy Weir"]) }
+    #let(:a) { Biblio::Emprunt.new("toto", "toto@blob.com", "Harry Potter", ["JK Rowling"]) }
+    #let(:b) { Biblio::Emprunt.new("bob", "bob@gmail.com", "The Martian", ["Andy Weir"]) }
 
     before do
-      @emprunts = [a,b]
+      IO.stub :readlines, ["toto%toto@blob.com%Harry Potter%JK Rowling", "bob%bob@gmail.com%The Martian%Andy Weir"] do
+        @emprunts_test = Biblio::Emprunts.new( "test" )
+      end
+      @biblio = Biblio::Biblio.new( "test" )
     end
 
-    #besoin de créer un objet biblio avant d'utiliser les methodes
     describe "cas avec un retour de document emprunte" do
       it "supprime l'emprunt" do
-        #Emprunts.stub :selectionner, @emprunts do
-          Biblio::Biblio.rapporter("The Martian").must_equal( [a] )
-        #end
+        @biblio.stub :les_emprunts, @emprunts_test do
+          @biblio.rapporter("The Martian")
+        end
       end
     end
 
