@@ -4,7 +4,7 @@ Feature: Je veux pouvoir indiquer le nom de l'emprunteur d'un document
   Scenario: Le document n'est pas emprunte et on retourne une erreur
   
     When je retourne l'emprunteur de l'unique emprunt dont le titre matche "Code Complete 2: now it's complete"
-    Then on retourne une erreur
+    Then aucun nom n'est retourne
 
 
   @avec_depot_emprunts_txt

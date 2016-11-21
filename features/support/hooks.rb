@@ -3,8 +3,14 @@ Before '@avec_depot_vide' do
   File.open( '.emprunts.txt', "w" ) do |fich|
     fich.puts contenu
   end
+  
+  Biblio::DEPOT_DEFAUT = './.biblio.txt'
+  Biblio::ServicesExternes.emprunts = {
+  ".txt" => Biblio::EmpruntsTxt,
+  ".yaml" => Biblio::EmpruntsYAML }
 
-  @emprunts_repository = Emprunts::Emprunts.ouvrir( '.emprunts.txt' )
+  @biblio_repository = Biblio::Biblio.ouvrir( '.emprunts.txt' )
+  @emprunts_repository = Biblio::Emprunts.ouvrir( '.emprunts.txt' )
 end
 
 After '@avec_depot_vide' do
@@ -14,12 +20,18 @@ end
 Before '@avec_depot_emprunts_txt' do
   contenu = [ 'Sarah%@%Harry Potter%JK Rowling%',
               'Jean%@%Les Miserables%Victor Hugo%',
-              'Celine%@%Silo%Hugh Howey%TRUE' ]
+              'Celine%@%Silo%Hugh Howey%true' ]
   File.open( '.emprunts.txt', "w" ) do |fich|
     fich.puts contenu
   end
 
-  @emprunts_repository = Emprunts::Emprunts.ouvrir( '.emprunts.txt' )
+  Biblio::DEPOT_DEFAUT = './.biblio.txt'
+  Biblio::ServicesExternes.emprunts = {
+  ".txt" => Biblio::EmpruntsTxt,
+  ".yaml" => Biblio::EmpruntsYAML }
+
+  @biblio_repository = Biblio::Biblio.ouvrir( '.emprunts.txt' )
+  @emprunts_repository = Biblio::Emprunts.ouvrir( '.emprunts.txt' )
 end
 
 After '@avec_depot_emprunts_txt' do

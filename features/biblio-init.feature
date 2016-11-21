@@ -1,5 +1,6 @@
 Feature: Je veux initialiser un depot
 
+  @avec_depot_vide
   Scenario: Il n'existe pas encore de base de donnees et on en cree une sans specifier de nom
 
     Given il n'existe pas de fichier ".biblio.txt"
@@ -13,11 +14,12 @@ Feature: Je veux initialiser un depot
 
     Given il n'existe pas de fichier ".test.txt"
 
-    When je cree un depot texte "test"
+    When je cree un depot texte ".test.txt"
 
     Then le fichier ".test.txt" existe
 
 
+  @avec_depot_vide
   Scenario: Il existe deja une base de donnees et on en cree une nouvelle en detruisant l'ancienne, pas de nom specifie
 
     Given il existe un fichier ".biblio.txt"
@@ -31,6 +33,6 @@ Feature: Je veux initialiser un depot
 
     Given il existe un fichier ".test.txt"
 
-    When je cree un depot texte sans nom en indiquant de le detruire s'il existe
+    When je cree un depot texte ".test.txt" en indiquant de le detruire s'il existe
 
     Then le fichier ".test.txt" existe
