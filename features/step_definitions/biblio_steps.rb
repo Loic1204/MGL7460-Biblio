@@ -97,6 +97,21 @@ When(/^je liste tous les emprunts$/) do
   puts @stdout
 end
 
+When(/^je rapporte un emprunt dont le titre est "([^"]*)"$/) do |titre|
+  @biblio_repository.rapporter( titre )
+end
+
+When(/^je selectionne l'emprunt dont le titre matche "([^"]*)"$/) do |titre|
+  @selection = @biblio_repository.les_emprunts.selectionner( unique: false ) do |e|
+    e.titre == titre
+  end
+end
+
+When(/^je trouve les emprunts dont le titre matche "([^"]*)"$/) do |extrait_titre|
+  @selection = @biblio_repository.trouver( extrait_titre )
+end
+
+
 #####################################################
 # Postconditions.
 #####################################################
@@ -152,5 +167,19 @@ end
 
 Then(/^on retourne$/) do |string|
   assert_equal( @stdout, string)
+end
+
+Then(/^on retourne la table$/) do |table|
+
+  ###
+  # Pris de la page http://stackoverflow.com/questions/19909912/cucumber-reading-data-from-a-3-column-table
+  ###
+  data = table.transpose.raw.inject({}) do |hash, column| 
+    column.reject!(&:empty?)
+    hash[column.shift] = column
+    hash    
+  end
+
+  assert_equal( @selection, data['titre'])
 end
 
