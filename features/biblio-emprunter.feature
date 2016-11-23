@@ -35,5 +35,5 @@ Feature: Emprunt d'un livre
     Examples:
     | e  | nom  | courriel                  | titre                    | auteurs      | nb |
     | e1 | toto | @                         | Les Miserables           | Victor Hugo  | 6  |
-    | e1 | toto | @                         | Harry Potter             | JK Rowling   | 6  |
-    | e1 | toto | @                         | Silo                     | Hugh Howey   | 6  |
+    | e2 | toto | @                         | Harry Potter             | JK Rowling   | 6  |
+    | e3 | toto | @                         | Silo                     | Hugh Howey   | 6  |
