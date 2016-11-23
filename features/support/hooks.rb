@@ -4,8 +4,8 @@ Before '@avec_depot_vide' do
     fich.puts contenu
   end
   
-  Biblio::DEPOT_DEFAUT = './.biblio.txt'
-  Biblio::ServicesExternes.emprunts = {
+  Biblio::DEPOT_DEFAUT ||= './.biblio.txt' unless Biblio::DEPOT_DEFAUT
+  Biblio::ServicesExternes.emprunts ||= {
   ".txt" => Biblio::EmpruntsTxt,
   ".yaml" => Biblio::EmpruntsYAML }
 
@@ -25,8 +25,8 @@ Before '@avec_depot_emprunts_txt' do
     fich.puts contenu
   end
 
-  Biblio::DEPOT_DEFAUT = './.biblio.txt'
-  Biblio::ServicesExternes.emprunts = {
+  Biblio::DEPOT_DEFAUT ||= './.biblio.txt'
+  Biblio::ServicesExternes.emprunts ||= {
   ".txt" => Biblio::EmpruntsTxt,
   ".yaml" => Biblio::EmpruntsYAML }
 

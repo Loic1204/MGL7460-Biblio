@@ -16,7 +16,6 @@ Given(/^il existe un fichier "([^"]*)"$/) do |fichier|
   FileUtils.touch fichier
 end
 
-
 #####################################################
 # Actions/evenements.
 #####################################################
@@ -116,6 +115,14 @@ When(/^je selectionne les emprunts fait par "([^"]*)"$/) do |nom|
   @stdout << @biblio_repository.emprunts_de(nom).join("\n")
 end
 
+When(/^j'emprunte l'emprunt "([^"]*)" pour "([^"]*)" de courriel "([^"]*)" pour le document "([^"]*)" ecrit par "([^"]*)"$/) do |e, nom, courriel, titre, auteurs|
+  begin
+    @biblio_repository.emprunter( nom, courriel, titre, auteurs ) if courriel =~ /([\w\.]*@[\w\.]*)/
+  rescue Exception=>e
+    @stdout = e.message
+  end
+end
+
 
 #####################################################
 # Postconditions.
@@ -125,16 +132,16 @@ Then(/^il n'y a aucun emprunt$/) do
   assert_equal @emprunts_repository.size, 0
 end
 
-Then(/^il y a (\d+) emprunts$/) do |nb|
-  assert_equal @emprunts_repository.size, nb.to_i
-end
+#Then(/^il y a (\d+) emprunts$/) do |nb|
+#  assert_equal @emprunts_repository.size, nb.to_i
+#end
 
-Then(/^l'emprunteur de "([^"]*)" est "([^"]*)"$/) do |titre, nom|
-  emp = @emprunts_repository.selectionner( unique: true ) do |e|
-    e.titre == titre
-  end
-  assert_equal nom, emp.nom
-end
+#Then(/^l'emprunteur de "([^"]*)" est "([^"]*)"$/) do |titre, nom|
+#  emp = @emprunts_repository.selectionner( unique: true ) do |e|
+#    e.titre == titre
+#  end
+#  assert_equal nom, emp.nom
+#end
 
 Then(/^(\d+) document(?:s)? (?:a|ont) ete selectionne(?:s)?$/) do |nb|
   assert_equal nb.to_i, @selection.size
@@ -193,5 +200,18 @@ Then(/^(\d+) documents ont ete affiches$/) do |number|
   assert_equal( number.to_i, @tab.size )
 end
 
+Then(/^il y a "([^"]*)" emprunts$/) do |nb|
+  es = @biblio_repository.les_emprunts.selectionner( unique: false ) do |e|
+    e.titre.size > 0
+  end
+  assert_equal nb.to_i, es.size
+end
+
+Then(/^l'emprunteur de "([^"]*)" est "([^"]*)"$/) do |titre, nom|
+  emp = @biblio_repository.les_emprunts.selectionner( unique: true ) do |e|
+    e.titre == titre
+  end
+  assert_equal nom, emp.nom
+end
 
 

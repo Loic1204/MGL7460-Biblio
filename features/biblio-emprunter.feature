@@ -1,40 +1,39 @@
 Feature: Emprunt d'un livre
  
   @avec_depot_emprunts_txt
-  Scenario : J'emprunte un document disponible avec un format d'adresse courriel valide
-    Given un emprunt "e1" fait par "toto" ["@"] pour "The Martian" de "Andy Weir"
-  
-    When j'emprunte l'emprunt "e1" 
+  Scenario Outline: J'emprunte un document disponible avec un format d'adresse courriel valide
+    When j'emprunte l'emprunt "<e>" pour "<nom>" de courriel "<courriel>" pour le document "<titre>" ecrit par "<auteurs>"
 
-    Then il y a 4 emprunts 
-    And l'emprunteur de "The Martian" est "toto"
+    Then il y a "<nb>" emprunts 
+    And l'emprunteur de "<titre>" est "<nom>"
 
-
-  Scenario : J'emprunte un document disponible avec un format d'adresse courriel non valide
-    Given un emprunt "e2" fait par "toto" ["@"] pour "The Martian" de "Andy Weir"
-
-    When j'emprunte l'emprunt "e1" 
-
-    Then il y a 3 emprunts
+    Examples:
+    | e  | nom  | courriel                  | titre                    | auteurs      | nb |
+    | e1 | toto | @                         | The Martian              | Andy Weir    | 4  |
+    | e2 | Jean | jean@truc.ca              | The Cursed Child         | JK Rowling   | 5  |
+    | e3 | Jean | j.dupont@courriel.truc.ca | The Hexed Grandkid       | JK Rowling   | 6  |
 
 
-  Scenario : Je veux emprunter un document deja emprunte avec un format d'adresse courriel valide
-    Given un emprunt "e3" fait par "toto" ["@"] pour "Les Miserables" de "Victor  Hugo"
+  @avec_depot_emprunts_txt
+  Scenario Outline: J'emprunte un document disponible avec un format d'adresse courriel non valide
+    When j'emprunte l'emprunt "<e>" pour "<nom>" de courriel "<courriel>" pour le document "<titre>" ecrit par "<auteurs>"
 
-    When j'emprunte l'emprunt "e3" 
+    Then il y a "<nb>" emprunts
 
-    Then il y a 3 emprunts 
-
-
-  Scenario : Je veux emprunter un document non present dans la base de donnees avec un format d'adresse courriel valide
-    Given un emprunt "e4" fait par "fred" ["@"] pour "Les Miserables" de "Victor  Hugo"
-
-    When j'emprunte l'emprunt "e3" 
-
-    Then il y a 3 emprunts 
+    Examples:
+    | e  | nom  | courriel                  | titre                    | auteurs      | nb |
+    | e1 | toto | mauvaiscourriel           | The Martian 2            | Andy Weir    | 6  |
 
 
+  @avec_depot_emprunts_txt
+  Scenario Outline: Je veux emprunter un document deja emprunte avec un format d'adresse courriel valide
+    When j'emprunte l'emprunt "<e>" pour "<nom>" de courriel "<courriel>" pour le document "<titre>" ecrit par "<auteurs>"
 
+    Then il y a "<nb>" emprunts 
+   
 
-
-  
+    Examples:
+    | e  | nom  | courriel                  | titre                    | auteurs      | nb |
+    | e1 | toto | @                         | Les Miserables           | Victor Hugo  | 6  |
+    | e1 | toto | @                         | Harry Potter             | JK Rowling   | 6  |
+    | e1 | toto | @                         | Silo                     | Hugh Howey   | 6  |
