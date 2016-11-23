@@ -35,6 +35,7 @@ task :biblio_features do
   sh "cucumber features/biblio-lister.feature"
   sh "cucumber features/biblio-rapporter.feature"
   sh "cucumber features/biblio-trouver.feature"
+  sh "cucumber features/biblio-selectionner.feature"
 end
 
 ##################################################

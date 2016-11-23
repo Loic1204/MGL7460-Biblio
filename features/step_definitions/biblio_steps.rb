@@ -111,6 +111,11 @@ When(/^je trouve les emprunts dont le titre matche "([^"]*)"$/) do |extrait_titr
   @selection = @biblio_repository.trouver( extrait_titre )
 end
 
+When(/^je selectionne les emprunts fait par "([^"]*)"$/) do |nom|
+  @stdout = ""
+  @stdout << @biblio_repository.emprunts_de(nom).join("\n")
+end
+
 
 #####################################################
 # Postconditions.
@@ -182,4 +187,11 @@ Then(/^on retourne la table$/) do |table|
 
   assert_equal( @selection, data['titre'])
 end
+
+Then(/^(\d+) documents ont ete affiches$/) do |number|
+  @tab = @stdout.split("\n")
+  assert_equal( number.to_i, @tab.size )
+end
+
+
 
