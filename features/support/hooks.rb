@@ -1,3 +1,7 @@
+###
+# Base sur hooks.rb de l'application Emprunts
+###
+
 Before '@avec_depot_vide' do
   Biblio::DEPOT_DEFAUT ||= './.biblio.txt' unless Biblio::DEPOT_DEFAUT
   Biblio::ServicesExternes.emprunts ||= {
