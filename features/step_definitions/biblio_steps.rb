@@ -20,39 +20,6 @@ end
 # Actions/evenements.
 #####################################################
 
-When(/^j'ouvre les emprunts pour le depot "([^"]*)"$/) do |fichier|
-  @emprunts_repository = Emprunts::Emprunts.ouvrir( fichier )
-end
-
-When(/^je selectionne les emprunts faits par "([^"]*)"$/) do |nom|
-  @selection = @emprunts_repository.selectionner do |e|
-    e.nom == nom
-  end
-end
-
-When(/^je selectionne les emprunts dont le titre matche "([^"]*)"$/) do |patron|
-  @selection = @emprunts_repository.selectionner do |e|
-    e.titre =~ /#{patron}/
-  end
-end
-
-When(/^je selectionne l'unique emprunt dont le titre est "([^"]*)"$/) do |titre|
-  @selection = @emprunts_repository.selectionner( unique: true ) do |e|
-    e.titre == titre
-  end
-end
-
-When(/^je selectionne les emprunts tels que le "([^"]*)" matche "([^"]*)"$/) do |champ, patron|
-end
-
-
-When(/^je supprime l'emprunt selectionne$/) do
-  @emprunts_repository.supprimer( @selection )
-end
-
-
-
-
 When(/^je retourne l'emprunteur de l'unique emprunt dont le titre matche "([^"]*)"$/) do |titre|
   @stdout = @biblio_repository.emprunteur( titre )
 end
@@ -83,7 +50,6 @@ When(/^je liste les emprunts qui ne sont pas perdus$/) do
     @stdout << ( emp.to_s('%-.20N :: [ %-10A ] "%-.20T"') )
     @stdout << "\n"
   end
-  puts @stdout
 end
 
 When(/^je liste tous les emprunts$/) do
@@ -93,7 +59,6 @@ When(/^je liste tous les emprunts$/) do
     @stdout << ( emp.to_s('%-.20N :: [ %-10A ] "%-.20T"') << perdu )
     @stdout << "\n"
   end
-  puts @stdout
 end
 
 When(/^je rapporte un emprunt dont le titre est "([^"]*)"$/) do |titre|
@@ -127,36 +92,6 @@ end
 #####################################################
 # Postconditions.
 #####################################################
-
-Then(/^il n'y a aucun emprunt$/) do
-  assert_equal @emprunts_repository.size, 0
-end
-
-#Then(/^il y a (\d+) emprunts$/) do |nb|
-#  assert_equal @emprunts_repository.size, nb.to_i
-#end
-
-#Then(/^l'emprunteur de "([^"]*)" est "([^"]*)"$/) do |titre, nom|
-#  emp = @emprunts_repository.selectionner( unique: true ) do |e|
-#    e.titre == titre
-#  end
-#  assert_equal nom, emp.nom
-#end
-
-Then(/^(\d+) document(?:s)? (?:a|ont) ete selectionne(?:s)?$/) do |nb|
-  assert_equal nb.to_i, @selection.size
-end
-
-Then(/^le titre du document (\d+) est "([^"]*)"$/) do |nb, titre|
-  assert_equal @selection[nb.to_i].titre, titre
-end
-
-Then(/^le titre de l'unique document selectionne est "([^"]*)"$/) do |titre|
-  assert_equal @selection.titre, titre
-end
-
-
-
 
 Then(/^le nom retourne est "([^"]*)"$/) do |nom|
   assert_equal @stdout, nom
@@ -214,4 +149,7 @@ Then(/^l'emprunteur de "([^"]*)" est "([^"]*)"$/) do |titre, nom|
   assert_equal nom, emp.nom
 end
 
+Then(/^(\d+) document a ete selectionne$/) do |nb|
+  assert_equal nb.to_i, @selection.size
+end
 

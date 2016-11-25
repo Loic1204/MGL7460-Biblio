@@ -10,8 +10,8 @@ Feature: Emprunt d'un livre
     Examples:
     | e  | nom  | courriel                  | titre                    | auteurs      | nb |
     | e1 | toto | @                         | The Martian              | Andy Weir    | 4  |
-    | e2 | Jean | jean@truc.ca              | The Cursed Child         | JK Rowling   | 5  |
-    | e3 | Jean | j.dupont@courriel.truc.ca | The Hexed Grandkid       | JK Rowling   | 6  |
+    | e2 | Jean | jean@truc.ca              | The Cursed Child         | JK Rowling   | 4  |
+    | e3 | Jean | j.dupont@courriel.truc.ca | The Hexed Grandkid       | JK Rowling   | 4  |
 
 
   @avec_depot_emprunts_txt
@@ -22,7 +22,7 @@ Feature: Emprunt d'un livre
 
     Examples:
     | e  | nom  | courriel                  | titre                    | auteurs      | nb |
-    | e1 | toto | mauvaiscourriel           | The Martian 2            | Andy Weir    | 6  |
+    | e1 | toto | mauvaiscourriel           | The Martian 2            | Andy Weir    | 3  |
 
 
   @avec_depot_emprunts_txt
@@ -34,6 +34,6 @@ Feature: Emprunt d'un livre
 
     Examples:
     | e  | nom  | courriel                  | titre                    | auteurs      | nb |
-    | e1 | toto | @                         | Les Miserables           | Victor Hugo  | 6  |
-    | e2 | toto | @                         | Harry Potter             | JK Rowling   | 6  |
-    | e3 | toto | @                         | Silo                     | Hugh Howey   | 6  |
+    | e1 | toto | @                         | Les Miserables           | Victor Hugo  | 3  |
+    | e2 | toto | @                         | Harry Potter             | JK Rowling   | 3  |
+    | e3 | toto | @                         | Silo                     | Hugh Howey   | 3  |
