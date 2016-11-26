@@ -13,7 +13,9 @@ require 'minitest/autorun'
 require 'minitest/spec'
 require 'minitest/mock'
 require 'simplecov'
-SimpleCov.start
+SimpleCov.start do
+  add_filter "/test/"
+end
 
 ## tiré de test_helper.rb du programme mini-sed
 

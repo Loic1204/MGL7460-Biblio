@@ -1,6 +1,10 @@
 require 'aruba/cucumber'
 require 'simplecov'
-SimpleCov.start
+
+SimpleCov.command_name ARGV.join(' ')
+SimpleCov.start do
+  add_filter "/features/"
+end
 
 ENV['PATH'] = "#{File.expand_path(File.dirname(__FILE__) + '/../../bin')}#{File::PATH_SEPARATOR}#{ENV['PATH']}"
 LIB_DIR = File.join(File.expand_path(File.dirname(__FILE__)),'..','..','lib')

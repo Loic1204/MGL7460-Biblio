@@ -3,7 +3,7 @@
 ###
 
 Before '@avec_depot_vide' do
-  Biblio::DEPOT_DEFAUT ||= './.biblio.txt' unless Biblio::DEPOT_DEFAUT
+  Biblio::DEPOT_DEFAUT ||= './.biblio.txt'
   Biblio::ServicesExternes.emprunts ||= {
   ".txt" => Biblio::EmpruntsTxt,
   ".yaml" => Biblio::EmpruntsYAML }
