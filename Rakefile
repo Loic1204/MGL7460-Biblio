@@ -20,14 +20,6 @@ task :default => [:spec]
 
 ##################################################
 
-task :test_emprunter do
-     sh "rake test TEST=test/emprunter_test.rb"     
-end
-
-task :test_rapporter do
-     sh "rake test TEST=test/rapporter_test.rb"     
-end
-
 task :test_emprunteur do
      sh "rake test TEST=test/emprunteur_test.rb"     
 end

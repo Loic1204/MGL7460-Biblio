@@ -75,7 +75,7 @@ When(/^je trouve les emprunts dont le titre matche "([^"]*)"$/) do |extrait_titr
   @selection = @biblio_repository.trouver( extrait_titre )
 end
 
-When(/^je selectionne les emprunts fait par "([^"]*)"$/) do |nom|
+When(/^je selectionne les emprunts faits par "([^"]*)"$/) do |nom|
   @stdout = ""
   @stdout << @biblio_repository.emprunts_de(nom).join("\n")
 end
